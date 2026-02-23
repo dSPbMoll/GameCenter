@@ -167,6 +167,7 @@
     </com.example.gamecenter._2048.GameGrid>
 
     <TextView
+        android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="50dp"

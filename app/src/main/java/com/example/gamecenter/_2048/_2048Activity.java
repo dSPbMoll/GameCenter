@@ -7,6 +7,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -15,7 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.gamecenter.R;
 
-public class _2048Activity extends AppCompatActivity implements GameListener {
+public class _2048Activity extends AppCompatActivity implements GameListener, Runnable {
 
     private GameGrid gameGrid;
     private TextView scoreTv, bestScoreTv;
@@ -26,6 +27,10 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
     private int remainingStepBacks = 3;
     private int bestScore = 0;
     private SharedPreferences prefs;
+    private GameMode gameMode;
+    private Thread thread;
+    private boolean isGameRunning = true;
+    private TextView clock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,36 +38,31 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
         EdgeToEdge.enable(this);
         setContentView(R.layout._2048_activity_main);
 
-        // Ajuste de márgenes del sistema (Barras de estado/navegación)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // 1. Inicializar Vistas (Con los IDs que pusimos en el XML)
         scoreTv = findViewById(R.id.score_tv);
         bestScoreTv = findViewById(R.id.best_score_tv);
         gameGrid = findViewById(R.id.game_grid);
         stepBackBtn = findViewById(R.id.step_back_btn);
         restartBtn = findViewById(R.id.restart_btn);
+        clock = findViewById(R.id.clock);
 
-        // 2. Cargar Mejor Puntuación guardada
         prefs = getSharedPreferences("2048_DATA", Context.MODE_PRIVATE);
         bestScore = prefs.getInt("BEST_SCORE", 0);
         updateScoreUI();
 
-        // 3. Conectar el Listener del Juego
-        // Esto permite que GameGrid nos avise cuando hay puntos o Game Over
         if (gameGrid != null) {
             gameGrid.setGameListener(this);
         }
 
-        // 4. Configurar Botones de Reinicio (Con protección anti-crash)
         if (restartBtn != null) {
             restartBtn.setOnClickListener(v -> {
                 if (gameGrid != null) {
-                    resetGame();
+                    onGameOver();
                 }
             });
         }
@@ -79,6 +79,78 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
             });
         }
 
+        showModeSelectionDialog();
+    }
+
+    private void showModeSelectionDialog() {
+        String[] modes = {"Classic", "Countdown"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a game mode");
+        builder.setCancelable(false);
+
+        builder.setItems(modes, (dialog, which) -> {
+            this.gameMode = (which == 0) ? GameMode.CLASSIC : GameMode.COUNTDOWN;
+
+            isGameRunning = true;
+            this.thread = new Thread(this);
+            this.thread.start();
+
+            dialog.dismiss();
+        });
+        builder.show();
+    }
+
+    public void run() {
+        if (gameMode == null) return;
+
+        switch (gameMode) {
+            case CLASSIC: runClassicMode(); break;
+            case COUNTDOWN: runCountdownMode(); break;
+        }
+
+        if (isGameRunning) {
+            runOnUiThread(this::onGameOver);
+        }
+    }
+
+    private void runClassicMode() {
+        int totalSeconds = 0;
+        while (isGameRunning) {
+            final int h = totalSeconds / 3600;
+            final int m = (totalSeconds % 3600) / 60;
+            final int s = totalSeconds % 60;
+
+            runOnUiThread(() -> clock.setText(String.format("%d:%02d:%02d", h, m, s)));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            totalSeconds++;
+        }
+    }
+    private void runCountdownMode() {
+        int totalSeconds = 10;
+
+        while (totalSeconds >= 0 && isGameRunning) {
+            final int h = totalSeconds / 3600;
+            final int m = (totalSeconds % 3600) / 60;
+            final int s = totalSeconds % 60;
+
+            runOnUiThread(() -> clock.setText(String.format("%d:%02d:%02d", h, m, s)));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            totalSeconds--;
+        }
+
+        if (totalSeconds < 0 && isGameRunning) {
+            runOnUiThread(this::onGameOver);
+        }
     }
 
     public void resetGame() {
@@ -87,6 +159,7 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
         scoreTv.setText("0");
         previousStepScore = 0;
         remainingStepBacks = 3;
+        showModeSelectionDialog();
     }
 
     @Override
@@ -105,16 +178,12 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
 
     @Override
     public void onScoreChanged(int scoreIncrease) {
-        //Guardar puntuación actual como previa
         previousStepScore = currentScore;
 
-        // Actualizar puntuación actual
         currentScore += scoreIncrease;
 
-        // Comprobar si rompimos el récord
         if (currentScore > bestScore) {
             bestScore = currentScore;
-            // Guardar en el teléfono permanentemente
             prefs.edit().putInt("BEST_SCORE", bestScore).apply();
         }
 
@@ -123,10 +192,35 @@ public class _2048Activity extends AppCompatActivity implements GameListener {
 
     @Override
     public void onGameOver() {
-        Toast.makeText(this, "¡Juego Terminado! Puntuación: " + currentScore, Toast.LENGTH_LONG).show();
+        if (!isGameRunning) return;
+
+        isGameRunning = false;
+        this.thread = null;
+
+        runOnUiThread(() -> {
+            showGameOverDialog();
+        });
     }
 
-    // --- MÉTODOS AUXILIARES ---
+    private void showGameOverDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Game Over!");
+        builder.setMessage("Final score: " + this.currentScore + "\nTry again?");
+
+        builder.setCancelable(false);
+
+        builder.setPositiveButton("Retry", (dialog, which) -> {
+            resetGame();
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Exit", (dialog, which) -> {
+            finish();
+        });
+
+        builder.show();
+    }
 
     private void updateScoreUI() {
         if (scoreTv != null) scoreTv.setText(String.valueOf(currentScore));
