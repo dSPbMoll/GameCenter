@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">GameCenter</string>
+    <string name="help">Help Screen</string>
+    <string name="menu">Main Menu Screen</string>
+    <string name="settings">Settings Screen</string>
+    <string name="game">Game Screen</string>
+    <string name="scores">Scores Screen</string>
+
+    <!-- Juice Dungeon 2 -->
+    <string name="jrpg_productions">JRPG PRODUCTIONS</string>
+    <string name="floor">Floor</string>
+
+    <!-- 2048 -->
+    <string name="_2048">2048</string>
+    <string name="score">SCORE</string>
+    <string name="_0">0</string>
+    <string name="best">BEST</string>
+    <string name="restart">RESTART</string>
+    <string name="step_back">STEP_BACK</string>
+</resources>

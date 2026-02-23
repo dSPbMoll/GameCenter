@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal|center_vertical"
+    android:background="@android:color/black">
+
+    <ImageView
+        android:id="@+id/ImageView2_Left"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_gravity="center"
+        android:src="@drawable/app_splash_logo" />
+
+    <TextView
+        android:id="@+id/splashText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/jrpg_productions"
+        android:textColor="@color/logo_color"
+        android:layout_gravity="center_horizontal"
+        android:gravity="top|center"
+        android:textSize="@dimen/splashTextSize"
+        android:layout_marginBottom="60dp"/>
+
+</LinearLayout>

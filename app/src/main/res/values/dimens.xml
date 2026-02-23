@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="splashTextSize">30sp</dimen>
+    <dimen name="version_size">15sp</dimen>
+    <dimen name="version_spacing">3sp</dimen>
+    <dimen name="characterHP">15sp</dimen>
+</resources>
