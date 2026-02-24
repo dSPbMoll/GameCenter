@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="#F7FFA3"
     tools:context="._2048._2048Activity">
 
     <!-- Top Info Bar -->
@@ -25,11 +24,11 @@
             android:background="#FFF13B"
             android:gravity="center"
             android:text="@string/_2048"
-            android:textSize="40sp" />
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <!-- Current Score View -->
-        <!-- Best Score View -->
-
+        <!-- Current Score View -->
         <LinearLayout
             android:id="@+id/currentScoreLL"
             android:layout_width="0dp"
@@ -62,6 +61,7 @@
 
         </LinearLayout>
 
+        <!-- Best Score View -->
         <LinearLayout
             android:id="@+id/bestScoreLL"
             android:layout_width="0dp"
@@ -93,6 +93,7 @@
 
         </LinearLayout>
 
+        <!-- Buttons -->
         <ImageButton
             android:id="@+id/step_back_btn"
             android:layout_width="0dp"

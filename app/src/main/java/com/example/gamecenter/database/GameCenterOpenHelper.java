@@ -168,33 +168,6 @@ public class GameCenterOpenHelper extends SQLiteOpenHelper {
         return deleted;
     }
 
-    public int updateScore(int id, int userId, String datetime, int score, String game) {
-        int mNumberOfRowsUpdated = -1;
-
-        try {
-            if (mWritableDB == null) {
-                mWritableDB = getWritableDatabase();
-            }
-
-            ContentValues values = new ContentValues();
-            values.put(SCORE_USERID, userId);
-            values.put(SCORE_DATETIME, datetime);
-            values.put(SCORE_SCORE, score);
-            values.put(SCORE_GAME, game);
-
-            // FIX: WHERE por SCORE_ID (no USER_ID)
-            mNumberOfRowsUpdated = mWritableDB.update(
-                    SCORE_TABLE,
-                    values,
-                    SCORE_ID + " = ?",
-                    new String[]{String.valueOf(id)}
-            );
-        } catch(Exception e) {
-            Log.d (TAG, "UPDATE EXCEPTION: " + e.getMessage());
-        }
-        return mNumberOfRowsUpdated;
-    }
-
     public Cursor searchByGame(String gameName) {
         String[] columns = SCORE_COLUMNS;
 
@@ -382,8 +355,10 @@ public class GameCenterOpenHelper extends SQLiteOpenHelper {
 
     public Cursor queryTopScoresWithUsernameByGame(String gameName, int limit) {
         // Traemos username desde USER y los campos relevantes de SCORE
+        // + IMPORTANT: también traemos s.id para poder borrar luego por swipe
         String query =
                 "SELECT " +
+                        "s." + SCORE_ID + " AS id, " +                  // <-- añadido
                         "u." + USER_USERNAME + " AS username, " +
                         "s." + SCORE_DATETIME + " AS datetime, " +
                         "s." + SCORE_SCORE + " AS score, " +

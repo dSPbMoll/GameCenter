@@ -1,13 +1,15 @@
 package com.example.gamecenter.score;
 
 public class GameScore {
+    private int id;
     private String username;
     private String datetime;
     private int imageResource;
     private int score;
     private String game;
 
-    public GameScore(String username, String datetime, int imageResource, int score, String game) {
+    public GameScore(int id, String username, String datetime, int imageResource, int score, String game) {
+        this.id = id;
         this.username = username;
         this.datetime = datetime;
         this.imageResource = imageResource;
@@ -44,6 +46,9 @@ public class GameScore {
     }
     public void setGame(String game) {
         this.game = game;
+    }
+    public int getId() {
+        return id;
     }
 
 

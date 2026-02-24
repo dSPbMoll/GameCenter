@@ -80,8 +80,20 @@ public class ScoreActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                mGameData.remove(viewHolder.getAdapterPosition());
-                mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                int position = viewHolder.getAdapterPosition();
+
+                GameScore swiped = mGameData.get(position);
+                int scoreId = swiped.getId();
+
+                GameCenterOpenHelper db = new GameCenterOpenHelper(ScoreActivity.this);
+                int deleted = db.deleteScore(scoreId);
+
+                if (deleted > 0) {
+                    mGameData.remove(position);
+                    mAdapter.notifyItemRemoved(position);
+                } else {
+                    mAdapter.notifyItemChanged(position);
+                }
             }
         });
 
@@ -117,18 +129,21 @@ public class ScoreActivity extends AppCompatActivity {
         if (cursor == null) return;
 
         try {
+            int colId = cursor.getColumnIndexOrThrow("id");          // <-- añadido
             int colUsername = cursor.getColumnIndexOrThrow("username");
             int colDatetime = cursor.getColumnIndexOrThrow("datetime");
             int colScore = cursor.getColumnIndexOrThrow("score");
             int colGame = cursor.getColumnIndexOrThrow("game");
 
             while (cursor.moveToNext()) {
+                int id = cursor.getInt(colId);                       // <-- añadido
                 String username = cursor.getString(colUsername);
                 String datetime = cursor.getString(colDatetime);
                 int score = cursor.getInt(colScore);
                 String game = cursor.getString(colGame);
 
-                mGameData.add(new GameScore(username, datetime, imageRes, score, game));
+                // IMPORTANTE: ahora pasamos id
+                mGameData.add(new GameScore(id, username, datetime, imageRes, score, game));
             }
         } finally {
             cursor.close();
