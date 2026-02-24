@@ -49,13 +49,13 @@ public class DungeonEntity {
     }
     public void heal(int ammountHealed) {
         this.hp = this.hp + ammountHealed;
-        if (this.hp > this.maxHp) {
+        if (this.hp >= this.maxHp) {
             this.hp = this.maxHp;
         }
     }
     public void damage(int ammountDamaged) {
         this.hp = this.hp - ammountDamaged;
-        if (this.hp < 0) {
+        if (this.hp <= 0) {
             this.hp = 0;
             this.isAlive = false;
         }
@@ -71,6 +71,9 @@ public class DungeonEntity {
     }
     public boolean getIsAlive() {
         return isAlive;
+    }
+    public int getTeamNumber() {
+        return this.teamNumber;
     }
 
     // ========================= OTHER ==========================

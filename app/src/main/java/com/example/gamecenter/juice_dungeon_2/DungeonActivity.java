@@ -3,6 +3,7 @@ package com.example.gamecenter.juice_dungeon_2;
 import static com.example.gamecenter.juice_dungeon_2.BattleMove.STRIKE;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -48,6 +49,7 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
     private ArrayList<BattleMove> allyTargetMoves;
     private ArrayList<BattleMove> enemyTargetMoves;
     private ArrayList<Integer> defendedTeamMembers = new ArrayList<>();
+    private int[] teamImageViewIds;
 
     private volatile boolean isTransitioning = false;
 
@@ -157,11 +159,13 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
                 R.id.team4Image, R.id.team5Image, R.id.team6Image
         };
 
+        teamImageViewIds = imageIds;
+
         ImageView[] images = new ImageView[team.length];
 
         for (int i = 0; i < team.length; i++) {
             images[i] = findViewById(imageIds[i]);
-            int resId = getDrawableByCharacterType(team[i].getType());
+            int resId = getNormalDrawableByCharacterType(team[i].getType());
             images[i].setImageResource(resId);
 
             final int targetIndex = i +1;
@@ -173,14 +177,30 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
                 }
             });
         }
+
+        //Remove default images from team members if team.lenght < 6
+        if (team.length < 6) {
+            for (int i=5; i >= team.length; i--) {
+                images[i].setVisibility(View.GONE);
+            }
+        }
+
         return images;
     }
-    private int getDrawableByCharacterType(CharacterType type) {
+    private int getNormalDrawableByCharacterType(CharacterType type) {
         switch (type) {
             case MACIA: return R.drawable.jd2_all_macia;
             case WIZARD: return R.drawable.jd2_all_wizard;
             case KNIGHT: return R.drawable.jd2_all_knight;
             default: return R.drawable.jd2_all_macia;
+        }
+    }
+    private int getCombatDrawableByCharacterType(CharacterType type) {
+        switch (type) {
+            case MACIA: return R.drawable.jd2_dungeon_combatmacia;
+            case WIZARD: return R.drawable.jd2_dungeon_combatwizard;
+            case KNIGHT: return R.drawable.jd2_dungeon_combatknight;
+            default: return R.drawable.jd2_dungeon_combatmacia;
         }
     }
     private TextView[] buildTeamHpTVs() {
@@ -195,6 +215,13 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             hpTvs[i] = findViewById(HpTvIds[i]);
         }
 
+        //Remove default images from team members if team.lenght < 6
+        if (team.length < 6) {
+            for (int i=5; i >= team.length; i--) {
+                hpTvs[i].setVisibility(View.GONE);
+            }
+        }
+
         return hpTvs;
     }
     private void updateTeamHpTvs() {
@@ -204,11 +231,31 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
     }
     private void updateDungeonEntityHpTv(int entityNum) {
         runOnUiThread(() -> {
+            TextView hpTv = null;
+            DungeonEntity dungeonEntity = null;
+
             if (entityNum >= 0) { // Ojo aquí, el índice 0 también es parte del equipo
-                teamHpTVs[entityNum].setText(team[entityNum].getHp() + "/" + team[entityNum].getMaxHp());
+                hpTv = teamHpTVs[entityNum];
+                dungeonEntity = team[entityNum];
             } else {
-                enemyHpTV.setText(enemy.getHp() + "/" + enemy.getMaxHp());
+                hpTv = enemyHpTV;
+                dungeonEntity = enemy;
             }
+
+            //Color
+            int dungEntHp = dungeonEntity.getHp();
+            int dungEntMaxHp = dungeonEntity.getMaxHp();
+
+            if (dungEntHp == dungEntMaxHp) {
+                hpTv.setTextColor(Color.GREEN);
+            } else if (dungEntHp < dungEntMaxHp && dungEntHp > 0) {
+                hpTv.setTextColor(Color.YELLOW);
+            } else {
+                hpTv.setTextColor(Color.RED);
+            }
+
+            hpTv.setText(dungeonEntity.getHp() + "/" + dungeonEntity.getMaxHp());
+
         });
     }
     private DungeonEntity initEnemy() {
@@ -354,6 +401,8 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             return;
         }
 
+        updateSpriteToNormal(team[numOfDungeonEntityWithShift - 1]);
+
         // Si matamos al enemigo, siguiente piso
         if (enemy.getHp() <= 0) {
             isTransitioning = true;
@@ -393,6 +442,7 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             // Si el siguiente está vivo, paramos
             if (numOfDungeonEntityWithShift > 0 && team[numOfDungeonEntityWithShift - 1].getIsAlive()) {
                 updateTeamMovesLL();
+                updateSpriteToCombat(team[numOfDungeonEntityWithShift - 1]);
                 chosenMove = null;
                 numOfChosenTarget = null;
                 defendedTeamMembers.clear();
@@ -565,7 +615,6 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
         startActivity(intent);
         finish();
     }
-
     private void saveJuiceDungeon2ScoreToDbIfLoggedIn() {
         int userId = SessionManager.getUserId(this);
         if (userId == -1) return;
@@ -578,11 +627,20 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
         GameCenterOpenHelper db = new GameCenterOpenHelper(this);
         db.insertScore(userId, datetime, floor, "JUICE_DUNGEON_2");
     }
-
     public void goBackHome(View view) {
         saveJuiceDungeon2ScoreToDbIfLoggedIn();
         Intent intent = new Intent(this, GameSelectorActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void updateSpriteToCombat(DungeonEntity dungeonEntity) {
+        ImageView image = findViewById(teamImageViewIds[dungeonEntity.getTeamNumber()]);
+        image.setImageResource(getCombatDrawableByCharacterType(dungeonEntity.getType()));
+    }
+
+    private void updateSpriteToNormal(DungeonEntity dungeonEntity) {
+        ImageView image = findViewById(teamImageViewIds[dungeonEntity.getTeamNumber()]);
+        image.setImageResource(getNormalDrawableByCharacterType(dungeonEntity.getType()));
     }
 }

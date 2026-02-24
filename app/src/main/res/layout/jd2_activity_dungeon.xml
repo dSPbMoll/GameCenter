@@ -214,7 +214,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
-                android:src="@drawable/jd2_all_macia" />
+                android:src="@drawable/jd2_all_macia"
+                android:scaleX="-1"/>
 
         </LinearLayout>
 
@@ -242,7 +243,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
-                android:src="@drawable/jd2_all_macia" />
+                android:src="@drawable/jd2_all_macia"
+                android:scaleX="-1"/>
 
         </LinearLayout>
 
@@ -269,7 +271,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
-                android:src="@drawable/jd2_all_macia" />
+                android:src="@drawable/jd2_all_macia"
+                android:scaleX="-1"/>
 
         </LinearLayout>
 
