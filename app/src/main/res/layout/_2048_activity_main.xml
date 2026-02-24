@@ -176,5 +176,14 @@
         android:background="@color/white"
         android:padding="5dp"/>
 
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/app_home"
+        android:scaleType="fitXY"
+        android:onClick="goBackHome"
+
+        android:layout_margin="10dp"
+        android:layout_gravity="end|end"/>
 
 </LinearLayout>

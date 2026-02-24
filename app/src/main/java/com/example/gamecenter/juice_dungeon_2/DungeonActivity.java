@@ -16,6 +16,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.gamecenter.GameSelectorActivity;
 import com.example.gamecenter.R;
 import com.example.gamecenter.database.GameCenterOpenHelper;
 import com.example.gamecenter.session.SessionManager;
@@ -313,22 +314,47 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
     private void executeGameLogic() {
         if (isTransitioning) return;
 
-        //Ensure that chosenMove is always one of the current attacker's moves
-        if (chosenMove == null) {
-            chosenMove = team[numOfDungeonEntityWithShift -1].getMoveSet().get((0));
+        // Si el equipo ha perdido, salimos
+        teamHasLost = checkTeamLost();
+        if (teamHasLost) return;
+
+        // ---------------- ENEMY TURN ----------------
+        if (numOfDungeonEntityWithShift < 0) {
+            boolean enemyDidMove = enemyShift();  // ahora devuelve boolean
+            // Aunque no haga nada (por mala suerte), pasamos turno igualmente para no bloquear
+            numOfDungeonEntityWithShift = 1;
+            updateTeamMovesLL();
+            chosenMove = null;
+            numOfChosenTarget = null;
+            defendedTeamMembers.clear();
+            return;
         }
 
+        // ---------------- PLAYER TURN ----------------
+        // Si el jugador actual está muerto, saltamos automáticamente al siguiente turno vivo
+        if (!team[numOfDungeonEntityWithShift - 1].getIsAlive()) {
+            passToNextShiftSkippingDead();
+            return;
+        }
+
+        // Ensure chosenMove is always one of the current attacker's moves
+        if (chosenMove == null) {
+            chosenMove = team[numOfDungeonEntityWithShift - 1].getMoveSet().get(0);
+        }
+
+        // Esperamos target del usuario
         if (numOfChosenTarget == null) return;
 
+        boolean isValidMove;
         if ((numOfChosenTarget > 0 && allyTargetMoves.contains(chosenMove))
-        || (numOfChosenTarget < 0 && enemyTargetMoves.contains(chosenMove))) {
-        // If the move is directed to a valid target
-            executeMove(numOfDungeonEntityWithShift, numOfChosenTarget, chosenMove);
+                || (numOfChosenTarget < 0 && enemyTargetMoves.contains(chosenMove))) {
+            isValidMove = executeMove(numOfDungeonEntityWithShift, numOfChosenTarget, chosenMove);
         } else {
             numOfChosenTarget = null;
             return;
         }
 
+        // Si matamos al enemigo, siguiente piso
         if (enemy.getHp() <= 0) {
             isTransitioning = true;
             numOfChosenTarget = null;
@@ -337,9 +363,49 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             return;
         }
 
-        passToNextShift();
+        // Si el movimiento fue válido, pasamos turno
+        if (isValidMove) {
+            passToNextShiftSkippingDead();
+        } else {
+            // Movimiento inválido (target muerto, etc). Reseteamos selección para que el usuario elija otra cosa.
+            chosenMove = null;
+            numOfChosenTarget = null;
+        }
+
+        teamHasLost = checkTeamLost();
     }
-    private void executeMove(int attackerNum, int targetNum, BattleMove move) {
+    private void passToNextShiftSkippingDead() {
+        // Avanza al siguiente aliado vivo. Si no hay, pasa a turno enemigo.
+        int tries = 0;
+
+        while (tries < team.length) {
+            if (numOfDungeonEntityWithShift > 0 && numOfDungeonEntityWithShift < team.length) {
+                numOfDungeonEntityWithShift++;
+            } else if (numOfDungeonEntityWithShift == team.length) {
+                numOfDungeonEntityWithShift = -1; // turno enemigo
+                updateTeamMovesLL();
+                chosenMove = null;
+                numOfChosenTarget = null;
+                defendedTeamMembers.clear();
+                return;
+            }
+
+            // Si el siguiente está vivo, paramos
+            if (numOfDungeonEntityWithShift > 0 && team[numOfDungeonEntityWithShift - 1].getIsAlive()) {
+                updateTeamMovesLL();
+                chosenMove = null;
+                numOfChosenTarget = null;
+                defendedTeamMembers.clear();
+                return;
+            }
+
+            tries++;
+        }
+
+        // Si llega aquí, no hay nadie vivo
+        teamHasLost = true;
+    }
+    private boolean executeMove(int attackerNum, int targetNum, BattleMove move) {
         DungeonEntity attacker;
         if (attackerNum >= 0) {
             attacker = team[attackerNum -1];
@@ -353,6 +419,8 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
         } else {
             target = enemy;
         }
+
+        if (!target.getIsAlive() || !attacker.getIsAlive()) return false;
 
         double efectivityFactor;
         if (defendedTeamMembers.contains(targetNum)) efectivityFactor = 0.2;
@@ -389,6 +457,7 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
                 updateDungeonEntityHpTv(uiTargetIndex);
                 break;
         }
+        return true;
     }
     private void passToNextShift() {
         if (numOfDungeonEntityWithShift > 0 && numOfDungeonEntityWithShift < team.length) {
@@ -404,19 +473,46 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
         numOfChosenTarget = null;
         defendedTeamMembers.clear();
     }
-    private void enemyShift() {
+    private boolean checkTeamLost() {
+        for (DungeonEntity member : team) {
+            if (member.getIsAlive()) return false;
+        }
+        return true;
+    }
+    private boolean enemyShift() {
+        if (enemy == null || !enemy.getIsAlive()) return false;
+
+        // Elegir un movimiento aleatorio
         int moveNum = (int) (Math.random() * defaultMoveSets.get(CharacterType.GOBLIN).size());
         BattleMove move = defaultMoveSets.get(CharacterType.GOBLIN).get(moveNum);
 
-        Integer target = null;
+        Integer target;
+
         if (allyTargetMoves.contains(move)) {
+            // El goblin solo tiene UNI_HEAL como allyTargetMove, así que se curará a sí mismo
             target = -1;
-        } else if (enemyTargetMoves.contains(move)) {
-            // Genera un objetivo válido del 1 al tamaño del equipo
-            target = (int) (Math.random() * team.length) + 1;
+            return executeMove(-1, target, move);
         }
 
-        executeMove(numOfDungeonEntityWithShift, target, move);
+        if (enemyTargetMoves.contains(move)) {
+            // Elegimos un aliado vivo aleatorio
+            ArrayList<Integer> aliveTargets = new ArrayList<>();
+            for (int i = 0; i < team.length; i++) {
+                if (team[i].getIsAlive()) aliveTargets.add(i + 1); // targets van 1..N
+            }
+
+            if (aliveTargets.isEmpty()) {
+                teamHasLost = true;
+                return false;
+            }
+
+            int idx = (int) (Math.random() * aliveTargets.size());
+            target = aliveTargets.get(idx);
+
+            return executeMove(-1, target, move);
+        }
+
+        return false;
     }
     private void passToNextFloor() {
         runOnUiThread(() -> {
@@ -481,5 +577,12 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
 
         GameCenterOpenHelper db = new GameCenterOpenHelper(this);
         db.insertScore(userId, datetime, floor, "JUICE_DUNGEON_2");
+    }
+
+    public void goBackHome(View view) {
+        saveJuiceDungeon2ScoreToDbIfLoggedIn();
+        Intent intent = new Intent(this, GameSelectorActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

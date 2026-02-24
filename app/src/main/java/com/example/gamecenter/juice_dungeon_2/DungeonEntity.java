@@ -9,6 +9,7 @@ public class DungeonEntity {
     private final double MAX_HP_GROW_RATE;
     private int hp;
     private int power;
+    private boolean isAlive;
 
     private final ArrayList<BattleMove> moveSet;
 
@@ -20,6 +21,7 @@ public class DungeonEntity {
         this.MAX_HP_GROW_RATE = maxHpGrowRate;
 
         this.power = 10;
+        this.isAlive = true;
         recalculateStats();
     }
 
@@ -29,8 +31,9 @@ public class DungeonEntity {
         this.type = character;
         this.moveSet = moveSet;
         this.MAX_HP_GROW_RATE = maxHpGrowRate;
-
         this.power = basePower;
+
+        this.isAlive = true;
         recalculateStats();
     }
 
@@ -41,7 +44,6 @@ public class DungeonEntity {
     public int getMaxHp() {
         return maxHp;
     }
-
     public int getHp() {
         return hp;
     }
@@ -55,6 +57,7 @@ public class DungeonEntity {
         this.hp = this.hp - ammountDamaged;
         if (this.hp < 0) {
             this.hp = 0;
+            this.isAlive = false;
         }
     }
     public int getPower() {
@@ -65,6 +68,9 @@ public class DungeonEntity {
     }
     public ArrayList<BattleMove> getMoveSet() {
         return moveSet;
+    }
+    public boolean getIsAlive() {
+        return isAlive;
     }
 
     // ========================= OTHER ==========================

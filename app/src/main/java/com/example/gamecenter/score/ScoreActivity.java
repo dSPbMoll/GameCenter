@@ -2,6 +2,7 @@ package com.example.gamecenter.score;
 
 import static java.lang.Thread.sleep;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gamecenter.GameSelectorActivity;
 import com.example.gamecenter.R;
 import com.example.gamecenter.database.GameCenterOpenHelper;
 import com.example.gamecenter.score.GameScore;
@@ -133,7 +135,9 @@ public class ScoreActivity extends AppCompatActivity {
         }
     }
 
-    public void resetSports(View view) {
-        initializeData();
+    public void goBackHome(View view) {
+        Intent intent = new Intent(this, GameSelectorActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

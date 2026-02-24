@@ -36,8 +36,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="16dp"
-        android:src="@drawable/_2048_all_ic_restart"
-        android:onClick="resetSports">
+        android:src="@drawable/app_home"
+        android:onClick="goBackHome">
 
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 

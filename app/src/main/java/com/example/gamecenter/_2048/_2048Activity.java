@@ -1,8 +1,10 @@
 package com.example.gamecenter._2048;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,8 +16,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.gamecenter.GameSelectorActivity;
 import com.example.gamecenter.R;
 import com.example.gamecenter.database.GameCenterOpenHelper;
+import com.example.gamecenter.score.ScoreActivity;
 import com.example.gamecenter.session.SessionManager;
 
 import java.text.SimpleDateFormat;
@@ -222,7 +226,7 @@ public class _2048Activity extends AppCompatActivity implements GameListener, Ru
         });
 
         builder.setNegativeButton("Exit", (dialog, which) -> {
-            finish();
+            goBackHome();
         });
 
         builder.show();
@@ -244,5 +248,20 @@ public class _2048Activity extends AppCompatActivity implements GameListener, Ru
 
         GameCenterOpenHelper db = new GameCenterOpenHelper(this);
         db.insertScore(userId, datetime, currentScore, "_2048");
+    }
+
+    public void goBackHome(View view) {
+        isGameRunning = false;
+        onGameOver();
+        Intent intent = new Intent(this, GameSelectorActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    public void goBackHome() {
+        isGameRunning = false;
+        onGameOver();
+        Intent intent = new Intent(this, GameSelectorActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

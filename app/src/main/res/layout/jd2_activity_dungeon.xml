@@ -291,4 +291,15 @@
         app:layout_constraintEnd_toEndOf="parent" />
     <!-- -->
 
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:onClick="goBackHome"
+
+        android:scaleType="fitXY"
+        android:src="@drawable/app_home"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
