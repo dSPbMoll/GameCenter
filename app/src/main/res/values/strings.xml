@@ -17,4 +17,28 @@
     <string name="best">BEST</string>
     <string name="restart">RESTART</string>
     <string name="step_back">STEP_BACK</string>
+
+    <!-- App -->
+    <!-- Scores -->
+
+    <string name="title_placeholder">Title</string>
+    <string name="news_placeholder">News</string>
+    <string name="game_info_placeholder">This is info about a game</string>
+    <string name="lorem_ipsum">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</string>
+
+    <string-array name="game_titles">
+        <item>2048</item>
+        <item>Juice Dungeon 2</item>
+    </string-array>
+
+    <string-array name="game_info">
+        <item>2048 is a classic puzzle game of combining number cubes for trying to reach a cube with 2048</item>
+        <item>Juice Dungeon 2 is a fanmade copy of Soda Dungeon 2, a JRPG where you have to progress through a dungeon for trying to reach high floors</item>
+    </string-array>
+
+    <array name="game_images">
+        <item>@drawable/app_2048banner</item>
+        <item>@drawable/jd2_login_scene</item>
+    </array>
+
 </resources>
