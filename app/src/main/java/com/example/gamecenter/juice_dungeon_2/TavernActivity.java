@@ -201,7 +201,7 @@ public class TavernActivity extends AppCompatActivity {
     }
 
     public void enterDungeon(View view) {
-        if (team == null || team.isEmpty()) {
+        if (team == null || team.size() < 6) {
             return;
         }
 

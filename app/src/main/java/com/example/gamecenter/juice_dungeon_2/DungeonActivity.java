@@ -83,6 +83,8 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
 
         this.thread = new Thread(this);
         thread.start();
+
+        updateSpriteToCombat(team[0]);
     }
     private HashMap<CharacterType, ArrayList<BattleMove>> initDefaultMoveSets() {
         HashMap<CharacterType, ArrayList<BattleMove>> defaultMoveSets = new HashMap<>();
@@ -367,13 +369,20 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
 
         // ---------------- ENEMY TURN ----------------
         if (numOfDungeonEntityWithShift < 0) {
-            boolean enemyDidMove = enemyShift();  // ahora devuelve boolean
-            // Aunque no haga nada (por mala suerte), pasamos turno igualmente para no bloquear
+            enemyShift(); // aunque "no haga nada", no queremos bloquear
             numOfDungeonEntityWithShift = 1;
+
             updateTeamMovesLL();
             chosenMove = null;
             numOfChosenTarget = null;
             defendedTeamMembers.clear();
+
+            // Opcional: al volver a turno aliado, marca en combate al primero vivo
+            if (team.length > 0 && team[0].getIsAlive()) {
+                updateSpriteToCombat(team[0]);
+            } else {
+                passToNextShiftSkippingDead(); // avanzará hasta el primero vivo y lo pondrá en combate
+            }
             return;
         }
 
@@ -401,6 +410,14 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             return;
         }
 
+        if (!isValidMove) {
+            // Movimiento inválido: no consumimos turno
+            chosenMove = null;
+            numOfChosenTarget = null;
+            return;
+        }
+
+        // Turno consumido: el que actuó vuelve a normalidad
         updateSpriteToNormal(team[numOfDungeonEntityWithShift - 1]);
 
         // Si matamos al enemigo, siguiente piso
@@ -412,19 +429,12 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
             return;
         }
 
-        // Si el movimiento fue válido, pasamos turno
-        if (isValidMove) {
-            passToNextShiftSkippingDead();
-        } else {
-            // Movimiento inválido (target muerto, etc). Reseteamos selección para que el usuario elija otra cosa.
-            chosenMove = null;
-            numOfChosenTarget = null;
-        }
+        // Pasamos al siguiente vivo (y se pondrá en combate)
+        passToNextShiftSkippingDead();
 
         teamHasLost = checkTeamLost();
     }
     private void passToNextShiftSkippingDead() {
-        // Avanza al siguiente aliado vivo. Si no hay, pasa a turno enemigo.
         int tries = 0;
 
         while (tries < team.length) {
@@ -439,10 +449,11 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
                 return;
             }
 
-            // Si el siguiente está vivo, paramos
+            // Si el siguiente está vivo, paramos: nuevo turno => sprite combate
             if (numOfDungeonEntityWithShift > 0 && team[numOfDungeonEntityWithShift - 1].getIsAlive()) {
                 updateTeamMovesLL();
                 updateSpriteToCombat(team[numOfDungeonEntityWithShift - 1]);
+
                 chosenMove = null;
                 numOfChosenTarget = null;
                 defendedTeamMembers.clear();
@@ -635,12 +646,22 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
     }
 
     private void updateSpriteToCombat(DungeonEntity dungeonEntity) {
-        ImageView image = findViewById(teamImageViewIds[dungeonEntity.getTeamNumber()]);
-        image.setImageResource(getCombatDrawableByCharacterType(dungeonEntity.getType()));
+        runOnUiThread(() -> {
+            int idx = dungeonEntity.getTeamNumber() - 1; // teamNumber parece 1..N
+            if (idx < 0 || idx >= teamImages.length) return;
+
+            ImageView image = teamImages[idx]; // ya lo tienes cacheado
+            image.setImageResource(getCombatDrawableByCharacterType(dungeonEntity.getType()));
+        });
     }
 
     private void updateSpriteToNormal(DungeonEntity dungeonEntity) {
-        ImageView image = findViewById(teamImageViewIds[dungeonEntity.getTeamNumber()]);
-        image.setImageResource(getNormalDrawableByCharacterType(dungeonEntity.getType()));
+        runOnUiThread(() -> {
+            int idx = dungeonEntity.getTeamNumber() - 1;
+            if (idx < 0 || idx >= teamImages.length) return;
+
+            ImageView image = teamImages[idx];
+            image.setImageResource(getNormalDrawableByCharacterType(dungeonEntity.getType()));
+        });
     }
 }
