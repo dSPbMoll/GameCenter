@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -7,40 +9,59 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="Choose a Game"
         android:textSize="30dp"
         android:gravity="center"
         android:layout_margin="10dp"
-        android:background="#EEEEEE"
-        android:layout_weight="6"/>
+        android:background="#EEEEEE" />
 
-    <LinearLayout
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_weight="1">
+        android:columnCount="2"
+        android:padding="20dp"
+        android:rowCount="2">
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="20dp"
+            android:id="@+id/a2048Image"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_columnWeight="1"
+            android:layout_margin="10dp"
             android:adjustViewBounds="true"
             android:onClick="start2048Game"
-            android:src="@drawable/app_2048banner"
-            android:layout_weight="1"/>
+            android:src="@drawable/app_2048banner" />
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:id="@+id/jd2Image"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="10dp"
             android:adjustViewBounds="true"
             android:onClick="startJuiceDungeon2Game"
-            android:src="@drawable/jd2_login_scene"
-            android:layout_weight="1"/>
+            android:src="@drawable/jd2_presentation_scene" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/scoresImage"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_columnSpan="2"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill_horizontal"
+            android:layout_margin="10dp"
+            android:adjustViewBounds="true"
+            android:onClick="startScoreActivity"
+            android:src="@drawable/app_gameselector_scores" />
+
+    </GridLayout>
 
 
 </LinearLayout>

@@ -17,9 +17,14 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.gamecenter.R;
+import com.example.gamecenter.database.GameCenterOpenHelper;
+import com.example.gamecenter.session.SessionManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class DungeonActivity extends AppCompatActivity implements Runnable {
     private Thread thread;
@@ -458,8 +463,23 @@ public class DungeonActivity extends AppCompatActivity implements Runnable {
         });
     }
     private void exitDungeon() {
+        saveJuiceDungeon2ScoreToDbIfLoggedIn();
+
         Intent intent = new Intent(DungeonActivity.this, TavernActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void saveJuiceDungeon2ScoreToDbIfLoggedIn() {
+        int userId = SessionManager.getUserId(this);
+        if (userId == -1) return;
+
+        if (floor <= 0) return;
+
+        String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                .format(new Date());
+
+        GameCenterOpenHelper db = new GameCenterOpenHelper(this);
+        db.insertScore(userId, datetime, floor, "JUICE_DUNGEON_2");
     }
 }

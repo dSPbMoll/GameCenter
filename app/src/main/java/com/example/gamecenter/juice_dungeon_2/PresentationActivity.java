@@ -11,14 +11,14 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.gamecenter.R;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class PresentationActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Asign the screen design
-        setContentView(R.layout.jd2_activity_login);
+        setContentView(R.layout.jd2_activity_presentation);
         // Hide system action bar
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());

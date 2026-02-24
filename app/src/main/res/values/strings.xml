@@ -38,7 +38,7 @@
 
     <array name="game_images">
         <item>@drawable/app_2048banner</item>
-        <item>@drawable/jd2_login_scene</item>
+        <item>@drawable/jd2_presentation_scene</item>
     </array>
 
 </resources>

@@ -15,6 +15,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.gamecenter.R;
+import com.example.gamecenter.database.GameCenterOpenHelper;
+import com.example.gamecenter.session.SessionManager;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class _2048Activity extends AppCompatActivity implements GameListener, Runnable {
 
@@ -197,9 +203,9 @@ public class _2048Activity extends AppCompatActivity implements GameListener, Ru
         isGameRunning = false;
         this.thread = null;
 
-        runOnUiThread(() -> {
-            showGameOverDialog();
-        });
+        save2048ScoreToDbIfLoggedIn();
+
+        runOnUiThread(this::showGameOverDialog);
     }
 
     private void showGameOverDialog() {
@@ -225,5 +231,18 @@ public class _2048Activity extends AppCompatActivity implements GameListener, Ru
     private void updateScoreUI() {
         if (scoreTv != null) scoreTv.setText(String.valueOf(currentScore));
         if (bestScoreTv != null) bestScoreTv.setText(String.valueOf(bestScore));
+    }
+
+    private void save2048ScoreToDbIfLoggedIn() {
+        int userId = SessionManager.getUserId(this);
+        if (userId == -1) return;
+
+        if (currentScore <= 0) return;
+
+        String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                .format(new Date());
+
+        GameCenterOpenHelper db = new GameCenterOpenHelper(this);
+        db.insertScore(userId, datetime, currentScore, "_2048");
     }
 }

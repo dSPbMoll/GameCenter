@@ -1,8 +1,8 @@
-package com.example.gamecenter;
+package com.example.gamecenter.score;
 
 import static java.lang.Thread.sleep;
 
-import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gamecenter.R;
+import com.example.gamecenter.database.GameCenterOpenHelper;
 import com.example.gamecenter.score.GameScore;
 import com.example.gamecenter.score.ScoreAdapter;
 
@@ -91,26 +93,44 @@ public class ScoreActivity extends AppCompatActivity {
      * Initialize the sports data from resources.
      */
     private void initializeData() {
-        // Get the resources from the XML file.
-        String[] sportsList = getResources()
-                .getStringArray(R.array.sports_titles);;
-
-        // Clear the existing data (to avoid duplication).
         mGameData.clear();
 
-        TypedArray sportsImageResources =
-                getResources().obtainTypedArray(R.array.game_images);
+        GameCenterOpenHelper db = new GameCenterOpenHelper(this);
+        int limitPerGame = 20;
 
-        // Create the ArrayList of Sports objects with titles and
-        // information about each sport.
-        for(int i=0;i<sportsList.length;i++){
-            mGameData.add(new GameScore( ));
-        }
+        addScoresFromCursorWithUsername(
+                db.queryTopScoresWithUsernameByGame("_2048", limitPerGame),
+                R.drawable.app_2048banner
+        );
 
-        sportsImageResources.recycle();
+        addScoresFromCursorWithUsername(
+                db.queryTopScoresWithUsernameByGame("JUICE_DUNGEON_2", limitPerGame),
+                R.drawable.jd2_presentation_scene
+        );
 
-        // Notify the adapter of the change.
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void addScoresFromCursorWithUsername(android.database.Cursor cursor, int imageRes) {
+        if (cursor == null) return;
+
+        try {
+            int colUsername = cursor.getColumnIndexOrThrow("username");
+            int colDatetime = cursor.getColumnIndexOrThrow("datetime");
+            int colScore = cursor.getColumnIndexOrThrow("score");
+            int colGame = cursor.getColumnIndexOrThrow("game");
+
+            while (cursor.moveToNext()) {
+                String username = cursor.getString(colUsername);
+                String datetime = cursor.getString(colDatetime);
+                int score = cursor.getInt(colScore);
+                String game = cursor.getString(colGame);
+
+                mGameData.add(new GameScore(username, datetime, imageRes, score, game));
+            }
+        } finally {
+            cursor.close();
+        }
     }
 
     public void resetSports(View view) {

@@ -24,6 +24,12 @@
         </activity>
 
         <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:process="com.example.gamecenter">
+        </activity>
+
+        <activity
             android:name=".GameSelectorActivity"
             android:exported="true"
             android:process="com.example.gamecenter">
@@ -37,7 +43,7 @@
         </activity>
 
         <activity
-            android:name=".juice_dungeon_2.LoginActivity"
+            android:name=".juice_dungeon_2.PresentationActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:process="com.example.gamecenter">
@@ -54,6 +60,12 @@
             android:name=".juice_dungeon_2.DungeonActivity"
             android:exported="true"
             android:screenOrientation="landscape"
+            android:process="com.example.gamecenter">
+        </activity>
+
+        <activity
+            android:name=".score.ScoreActivity"
+            android:exported="true"
             android:process="com.example.gamecenter">
         </activity>
 

@@ -6,6 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".LoginActivity"
-    android:background="@drawable/jd2_login_scene">
+    android:background="@drawable/jd2_presentation_scene">
 
 </LinearLayout>

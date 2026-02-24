@@ -121,10 +121,15 @@ public class ScoreAdapter extends RecyclerView.Adapter<ScoreAdapter.ViewHolder> 
         }
 
         void bindTo(GameScore currentScore){
-            // Populate the textviews with data.
             mUsernameText.setText(currentScore.getUsername());
-            mScoreText.setText(currentScore.getScore());
+            mScoreText.setText(String.valueOf(currentScore.getScore()));
+            mDateTimeText.setText(currentScore.getDatetime());
 
+            if (currentScore.getGame().equals("JUICE_DUNGEON_2")) {
+                mGameImage.setImageResource(R.drawable.app_2048banner);
+            } else if (currentScore.getGame().equals("_2048")) {
+                mGameImage.setImageResource(R.drawable.jd2_presentation_scene);
+            }
         }
 
         @Override

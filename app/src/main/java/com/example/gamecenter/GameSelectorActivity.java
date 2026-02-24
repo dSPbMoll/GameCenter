@@ -10,7 +10,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.gamecenter._2048._2048Activity;
-import com.example.gamecenter.juice_dungeon_2.LoginActivity;
+import com.example.gamecenter.juice_dungeon_2.PresentationActivity;
+import com.example.gamecenter.score.ScoreActivity;
 
 public class GameSelectorActivity extends AppCompatActivity {
 
@@ -38,7 +39,13 @@ public class GameSelectorActivity extends AppCompatActivity {
     }
 
     public void startJuiceDungeon2Game(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, PresentationActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void startScoreActivity(View view) {
+        Intent intent = new Intent(this, ScoreActivity.class);
         startActivity(intent);
         finish();
     }

@@ -4,4 +4,7 @@
     <dimen name="version_size">15sp</dimen>
     <dimen name="version_spacing">3sp</dimen>
     <dimen name="characterHP">15sp</dimen>
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>

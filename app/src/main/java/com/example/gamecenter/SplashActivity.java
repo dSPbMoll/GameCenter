@@ -15,6 +15,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.gamecenter.LoginActivity;
+
 public class SplashActivity extends AppCompatActivity {
 
     @Override
@@ -70,7 +72,7 @@ public class SplashActivity extends AppCompatActivity {
 
                 ((LinearLayout) title.getParent()).removeAllViews();
 
-                Intent intent = new Intent(SplashActivity.this, GameSelectorActivity.class);
+                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }
